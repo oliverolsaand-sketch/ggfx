@@ -14,14 +14,19 @@
     --blue-hi: #57a3e0;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  html,body{width:100%;height:100%;background:#04060a;overflow:hidden;}
+  html,body{width:100%;background:#04060a;}
   body{
     position:relative;
+    font-family:'Inter', sans-serif;
+  }
+
+  .hero{
+    position:relative;
+    height:100vh;
     display:flex;
     align-items:center;
     justify-content:center;
-    height:100vh;
-    font-family:'Inter', sans-serif;
+    overflow:hidden;
   }
 
   /* the reference photo itself, recolored to blue via a luminance duotone filter
@@ -151,6 +156,134 @@
     .photo, .content{ animation:none !important; opacity:1 !important; transform:scale(1.1) !important; }
     .content{ opacity:1 !important; transform:none !important; }
   }
+
+  /* below-fold section: info text, trailer placeholder, interest button */
+  .below{
+    position:relative;
+    background:#050609;
+    padding:64px 24px 80px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:40px;
+    text-align:center;
+  }
+  .info-text{
+    max-width:560px;
+    color:var(--text-dim);
+    font-size:15px;
+    line-height:1.6;
+  }
+  /* replace this placeholder paragraph with real copy later */
+  .info-text.placeholder{ font-style:italic; opacity:0.6; }
+
+  .video-slot{
+    width:100%;
+    max-width:720px;
+    aspect-ratio:16/9;
+    border-radius:16px;
+    border:1px dashed rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.02);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--text-dim);
+    font-size:14px;
+    letter-spacing:0.02em;
+    overflow:hidden;
+  }
+  /* to embed the real trailer later, replace this whole .video-slot div with:
+     <video class="video-slot" src="trailer.mp4" controls playsinline></video> */
+
+  .interest-btn{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.02em;
+    color:#04060a;
+    background:var(--text);
+    border:none;
+    padding:16px 32px;
+    border-radius:999px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    box-shadow: 0 0 30px rgba(87,163,224,0.25);
+  }
+  .interest-btn:hover{ transform:translateY(-2px); box-shadow: 0 6px 34px rgba(87,163,224,0.4); }
+  .interest-btn:disabled{
+    background:rgba(255,255,255,0.08);
+    color:var(--text-dim);
+    cursor:default;
+    transform:none;
+    box-shadow:none;
+  }
+
+  /* confirmation modal */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:20;
+    background:rgba(2,3,5,0.72);
+    backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    opacity:0; pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:auto; }
+  .modal{
+    width:100%; max-width:420px;
+    background:#0b0f16;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:18px;
+    padding:28px 26px;
+    text-align:left;
+    transform:translateY(10px);
+    transition:transform .2s ease;
+  }
+  .modal-overlay.open .modal{ transform:translateY(0); }
+  .modal h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:18px;
+    color:var(--text);
+    margin-bottom:12px;
+  }
+  .modal p{
+    color:var(--text-dim);
+    font-size:14px;
+    line-height:1.6;
+    margin-bottom:22px;
+  }
+  .modal-actions{ display:flex; gap:10px; }
+  .modal-actions button{
+    flex:1;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:12px 16px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+  }
+  .modal-confirm{ background:var(--blue-hi); color:#04060a; }
+  .modal-cancel{ background:rgba(255,255,255,0.06); color:var(--text-dim); }
+
+  .visit-counter{
+    position:fixed;
+    bottom:16px;
+    right:16px;
+    z-index:15;
+    font-family:'Inter', sans-serif;
+    font-size:11px;
+    letter-spacing:0.04em;
+    color:rgba(255,255,255,0.5);
+    background:rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.08);
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .visit-counter.show{ opacity:1; }
 </style>
 </head>
 <body>
@@ -174,22 +307,90 @@
     </filter>
   </svg>
 
-  <div class="photo"></div>
-  <div class="ambient">
-    <span class="a1"></span>
-    <span class="a2"></span>
-    <span class="a3"></span>
-    <span class="a4"></span>
-  </div>
-  <div class="grid"></div>
-  <div class="grain"></div>
-  <div class="vignette"></div>
+  <div class="hero">
+    <div class="photo"></div>
+    <div class="ambient">
+      <span class="a1"></span>
+      <span class="a2"></span>
+      <span class="a3"></span>
+      <span class="a4"></span>
+    </div>
+    <div class="grid"></div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
 
-  <div class="content">
-    <div class="wordmark">GGFX</div>
-    <div class="rule"></div>
-    <div class="sub">soon</div>
+    <div class="content">
+      <div class="wordmark">GGFX</div>
+      <div class="rule"></div>
+      <div class="sub">soon</div>
+    </div>
   </div>
+
+  <div class="below">
+    <!-- 3. info text — replace this placeholder with the real copy later -->
+    <p class="info-text placeholder">Info text coming soon — this paragraph will explain what GGFX is.</p>
+
+    <!-- 4. trailer — replace this div with:
+         <video class="video-slot" src="trailer.mp4" controls playsinline></video> -->
+    <div class="video-slot">Trailer coming soon</div>
+
+    <button class="interest-btn" id="interestBtn">Preliminary Interest</button>
+  </div>
+
+  <div class="visit-counter" id="visitCounter"></div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>Before you confirm</h3>
+      <p>Only click "I'm interested" if you have genuine interest in GGFX — not just curiosity. This helps us gauge real demand before launch.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="modalCancel">Cancel</button>
+        <button class="modal-confirm" id="modalConfirm">I'm interested</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const NAMESPACE = 'ggfx-store';
+    const API = 'https://api.counterapi.dev/v1';
+
+    // --- public visit counter ---
+    fetch(`${API}/${NAMESPACE}/visits/up`)
+      .then(r => r.json())
+      .then(d => {
+        const el = document.getElementById('visitCounter');
+        el.textContent = `${d.count.toLocaleString()} visits`;
+        el.classList.add('show');
+      })
+      .catch(() => {});
+
+    // --- preliminary interest button + modal ---
+    const interestBtn = document.getElementById('interestBtn');
+    const overlay = document.getElementById('modalOverlay');
+    const cancelBtn = document.getElementById('modalCancel');
+    const confirmBtn = document.getElementById('modalConfirm');
+    const ALREADY_KEY = 'ggfx_interest_given';
+
+    if (localStorage.getItem(ALREADY_KEY)) {
+      interestBtn.textContent = '✓ Thanks, noted!';
+      interestBtn.disabled = true;
+    }
+
+    interestBtn.addEventListener('click', () => {
+      if (interestBtn.disabled) return;
+      overlay.classList.add('open');
+    });
+    cancelBtn.addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+    confirmBtn.addEventListener('click', () => {
+      overlay.classList.remove('open');
+      interestBtn.textContent = '✓ Thanks, noted!';
+      interestBtn.disabled = true;
+      try { localStorage.setItem(ALREADY_KEY, '1'); } catch(e) {}
+      fetch(`${API}/${NAMESPACE}/interest/up`).catch(() => {});
+    });
+  </script>
 
 </body>
 </html>
