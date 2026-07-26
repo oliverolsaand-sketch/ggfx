@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GGFX — soon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --text: #eef3f8;
+    --text-dim: #7c8ca0;
+    --blue-4: #2f74b8;
+    --blue-hi: #57a3e0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;background:#04060a;overflow:hidden;}
+  body{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    font-family:'Inter', sans-serif;
+  }
+
+  /* the reference photo itself, recolored to blue via a luminance duotone filter
+     (so the shape/texture is 1:1 identical to the source, only the color changes) */
+  .photo{
+    position:absolute; inset:0;
+    background-image:url("bg.jpg");
+    background-size: cover;
+    background-position: center 30%;
+    filter: url(#duotone) saturate(1.25) contrast(1.15) brightness(1.05);
+    transform: scale(1.08);
+    animation: slowPan 40s ease-in-out infinite alternate;
+    z-index:0;
+  }
+
+  @keyframes slowPan{
+    0%{ transform: scale(1.08) translate(0,0); }
+    100%{ transform: scale(1.14) translate(-1.2%, -1.5%); }
+  }
+
+  /* soft ambient blobs — the classic slow-drifting gradient glow accent */
+  .ambient{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+  .ambient span{
+    position:absolute;
+    border-radius:50%;
+    filter: blur(70px);
+    mix-blend-mode: screen;
+    opacity:0.7;
+  }
+  .a1{
+    width:48vw; height:48vw; top:-14%; left:-12%;
+    background: radial-gradient(circle, #4ea8e0 0%, transparent 70%);
+    animation: floatA 11s ease-in-out infinite alternate;
+  }
+  .a2{
+    width:42vw; height:42vw; bottom:-16%; right:-10%;
+    background: radial-gradient(circle, #2f74b8 0%, transparent 70%);
+    animation: floatB 14s ease-in-out infinite alternate;
+  }
+  .a3{
+    width:30vw; height:30vw; top:30%; right:8%;
+    background: radial-gradient(circle, #6cc0f0 0%, transparent 70%);
+    opacity:0.5;
+    animation: floatA 9s ease-in-out infinite alternate-reverse;
+  }
+  .a4{
+    width:24vw; height:24vw; bottom:10%; left:36%;
+    background: radial-gradient(circle, #8fd0f5 0%, transparent 70%);
+    opacity:0.45;
+    animation: floatB 8s ease-in-out infinite alternate;
+  }
+  @keyframes floatA{
+    0%{   transform: translate(0,0) scale(1);           border-radius:50%; }
+    33%{  transform: translate(14vw,16vh) scale(1.35);   border-radius:42% 58% 63% 37% / 45% 40% 60% 55%; }
+    66%{  transform: translate(24vw,6vh) scale(1.6);     border-radius:60% 40% 45% 55% / 55% 62% 38% 45%; }
+    100%{ transform: translate(6vw,26vh) scale(1.2);     border-radius:38% 62% 55% 45% / 60% 35% 65% 40%; }
+  }
+  @keyframes floatB{
+    0%{   transform: translate(0,0) scale(1);            border-radius:50%; }
+    33%{  transform: translate(-16vw,-12vh) scale(0.75);  border-radius:56% 44% 38% 62% / 42% 60% 40% 58%; }
+    66%{  transform: translate(-26vw,-20vh) scale(1.45);  border-radius:44% 56% 60% 40% / 58% 38% 62% 42%; }
+    100%{ transform: translate(-8vw,-6vh) scale(1.15);    border-radius:62% 38% 45% 55% / 40% 55% 45% 60%; }
+  }
+
+  /* faint grid, matches the graph texture in the reference */
+  .grid{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(120% 90% at 50% 35%, black 30%, transparent 88%);
+            mask-image: radial-gradient(120% 90% at 50% 35%, black 30%, transparent 88%);
+    z-index:2;
+  }
+
+  /* faint grid, matches the graph texture in the reference */
+  .grain{
+    position:absolute; inset:0; z-index:3; opacity:0.06; pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'><filter id=\'n\'><feTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/></svg>");
+  }
+
+  /* vignette, focuses the eye on the center like the reference */
+  .vignette{
+    position:absolute; inset:0; z-index:4; pointer-events:none;
+    background: radial-gradient(120% 90% at 50% 55%, transparent 35%, rgba(2,3,5,0.8) 100%);
+  }
+
+  .content{
+    position:relative;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    padding:0 24px;
+    opacity:0;
+    transform: translateY(24px);
+    animation: slideIn 1s cubic-bezier(.22,.9,.3,1) 0.2s forwards;
+  }
+  .wordmark{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(40px, 8vw, 96px);
+    letter-spacing:0.02em;
+    color:var(--text);
+    line-height:1;
+    text-shadow: 0 0 40px rgba(87,163,224,0.4), 0 0 90px rgba(47,116,184,0.3);
+    white-space:nowrap;
+  }
+  .rule{ width:1px; height:clamp(28px, 5vw, 56px); background:var(--blue-4); flex-shrink:0; }
+  .sub{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:clamp(26px, 5vw, 56px);
+    letter-spacing:0.04em;
+    color:#fbfdff;
+    white-space:nowrap;
+  }
+
+  @keyframes slideIn{
+    from{ opacity:0; transform: translateY(24px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .photo, .content{ animation:none !important; opacity:1 !important; transform:scale(1.1) !important; }
+    .content{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- SVG duotone filter: converts the photo to luminance, then maps
+       shadows -> dark navy and highlights -> bright azure
+       (uses a red-weighted brightness proxy, not true luma, so the
+       vivid red canopy in the source maps to the bright end, not the dark end) -->
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="duotone">
+      <feColorMatrix type="matrix" values="
+        0.68 0.22 0.10 0 0
+        0.68 0.22 0.10 0 0
+        0.68 0.22 0.10 0 0
+        0    0    0    1 0"/>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues="0.02 0.42"/>
+        <feFuncG type="table" tableValues="0.06 0.74"/>
+        <feFuncB type="table" tableValues="0.12 0.98"/>
+      </feComponentTransfer>
+    </filter>
+  </svg>
+
+  <div class="photo"></div>
+  <div class="ambient">
+    <span class="a1"></span>
+    <span class="a2"></span>
+    <span class="a3"></span>
+    <span class="a4"></span>
+  </div>
+  <div class="grid"></div>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+
+  <div class="content">
+    <div class="wordmark">GGFX</div>
+    <div class="rule"></div>
+    <div class="sub">soon</div>
+  </div>
+
+</body>
+</html>
