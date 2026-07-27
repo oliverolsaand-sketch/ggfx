@@ -20,6 +20,57 @@
     font-family:'Inter', sans-serif;
   }
 
+  /* ---------- ghost loading overlay ---------- */
+  .ghost-loader{
+    position:fixed; inset:0; z-index:9999;
+    background:#04060a;
+    display:flex; align-items:center; justify-content:center;
+    transition: opacity .5s ease;
+  }
+  .ghost-loader.hide{ opacity:0; pointer-events:none; }
+  .ghost-inner{
+    width:100%; max-width:720px;
+    padding:0 24px;
+    display:flex; flex-direction:column; gap:28px;
+  }
+  .ghost-row{ display:flex; align-items:center; gap:12px; }
+  .ghost-row.header{ justify-content:space-between; }
+  .ghost-row.buttons{ justify-content:center; gap:16px; margin-top:8px; }
+  .ghost-shape{
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.04) 63%);
+    background-size: 400% 100%;
+    animation: ghostShimmer 1.6s ease-in-out infinite;
+    border-radius:999px;
+  }
+  .ghost-shape.circle{ width:36px; height:36px; border-radius:50%; flex-shrink:0; }
+  .ghost-shape.circle.small{ width:22px; height:22px; }
+  .ghost-shape.pill{ height:14px; border-radius:999px; }
+  .ghost-shape.pill.w40{ width:80px; }
+  .ghost-shape.pill.w60{ width:120px; }
+  .ghost-shape.pill.btn{ width:130px; height:38px; border-radius:999px; }
+  .ghost-box{
+    width:100%; aspect-ratio:16/9;
+    border-radius:16px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 37%, rgba(255,255,255,0.03) 63%);
+    background-size:400% 100%;
+    animation: ghostShimmer 1.6s ease-in-out infinite;
+    position:relative;
+  }
+  .ghost-box::after{
+    content:""; position:absolute; top:50%; left:50%;
+    width:56px; height:56px; margin:-28px 0 0 -28px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.08);
+  }
+  @keyframes ghostShimmer{
+    0%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ghost-shape, .ghost-box{ animation:none !important; }
+  }
+  /* ---------- /ghost loading overlay ---------- */
+
   .hero{
     position:relative;
     height:100vh;
@@ -418,9 +469,46 @@
     transition:opacity .4s ease;
   }
   .visit-counter.show{ opacity:1; }
+
+  /* ---------- mierna optimalizácia pre menšie / slabšie zariadenia ---------- */
+  /* Cieľ: znížiť GPU záťaž (blur, filtre), nie efekty úplne vypnúť. */
+  @media (max-width: 768px){
+    /* blur je najdrahšia časť ambient blobov — zmenšíme polomer, necháme pohyb */
+    .ambient span{ filter: blur(40px); }
+
+    /* fotka: necháme duotone (potrebný pre vzhľad), len vypustíme extra saturate/contrast vrstvu */
+    .photo{ filter: url(#duotone) brightness(1.05); }
+
+    /* modal: backdrop-filter blur je na slabšom mobile znateľne pomalý,
+       nahradíme mierne tmavším pozadím bez blur-u */
+    .modal-overlay{ backdrop-filter: none; background: rgba(2,3,5,0.86); }
+  }
+
+  /* na naozaj úzkych / nízkovýkonných zariadeniach o čosi viac ubereme */
+  @media (max-width: 420px){
+    .ambient span{ filter: blur(28px); opacity:0.55; }
+    .photo{ animation-duration: 60s; } /* ten istý pan, len pomalší = menej prepočtov za sekundu */
+  }
 </style>
 </head>
 <body>
+
+  <!-- ghost loading overlay: shown immediately, hidden once the page has fully loaded -->
+  <div class="ghost-loader" id="ghostLoader">
+    <div class="ghost-inner">
+      <div class="ghost-row header">
+        <div class="ghost-shape circle"></div>
+        <div class="ghost-shape pill w60"></div>
+        <div class="ghost-shape pill w40"></div>
+        <div class="ghost-shape circle small"></div>
+      </div>
+      <div class="ghost-row buttons">
+        <div class="ghost-shape pill btn"></div>
+        <div class="ghost-shape pill btn"></div>
+      </div>
+      <div class="ghost-box"></div>
+    </div>
+  </div>
 
   <!-- SVG duotone filter: converts the photo to luminance, then maps
        shadows -> dark navy and highlights -> bright azure
@@ -603,6 +691,31 @@
       interestBtn.disabled = true;
       try { localStorage.setItem(ALREADY_KEY, '1'); } catch(e) {}
     });
+  </script>
+
+  <!-- ghost loading overlay: hide once the page (incl. fonts, background photo) has finished loading -->
+  <script>
+    (function(){
+      const loader = document.getElementById('ghostLoader');
+      const MIN_SHOW = 500;   // ms — aby loader nebliknul pri veľmi rýchlom pripojení
+      const MAX_SHOW = 6000;  // ms — poistka, keby 'load' event z nejakého dôvodu neprišiel
+      const start = Date.now();
+      let done = false;
+
+      function hideLoader(){
+        if (done) return;
+        done = true;
+        const elapsed = Date.now() - start;
+        const wait = Math.max(0, MIN_SHOW - elapsed);
+        setTimeout(() => {
+          loader.classList.add('hide');
+          setTimeout(() => loader.remove(), 550);
+        }, wait);
+      }
+
+      window.addEventListener('load', hideLoader);
+      setTimeout(hideLoader, MAX_SHOW);
+    })();
   </script>
 
   <!-- hidden real Google Form submission target -->
