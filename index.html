@@ -266,6 +266,29 @@
   .modal-confirm{ background:var(--blue-hi); color:#04060a; }
   .modal-cancel{ background:rgba(255,255,255,0.06); color:var(--text-dim); }
 
+  .modal-step{ display:none; }
+  .modal-step.active{ display:block; }
+  .modal-field{
+    width:100%;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px;
+    padding:12px 14px;
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    margin-bottom:12px;
+    outline:none;
+  }
+  .modal-field:focus{ border-color:var(--blue-hi); }
+  .modal-field::placeholder{ color:var(--text-dim); }
+  .modal-error{
+    color:#ff8a8a;
+    font-size:12.5px;
+    margin:-6px 0 12px;
+    display:none;
+  }
+
   .visit-counter{
     position:fixed;
     bottom:16px;
@@ -341,11 +364,24 @@
 
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-      <h3>Before you confirm</h3>
-      <p>Only click "I'm interested" if you have genuine interest in GGFX — not just curiosity. This helps us gauge real demand before launch.</p>
-      <div class="modal-actions">
-        <button class="modal-cancel" id="modalCancel">Cancel</button>
-        <button class="modal-confirm" id="modalConfirm">I'm interested</button>
+      <div class="modal-step active" id="stepConfirm">
+        <h3>Before you confirm</h3>
+        <p>Only click "I'm interested" if you have genuine interest in GGFX — not just curiosity. This helps us gauge real demand before launch.</p>
+        <div class="modal-actions">
+          <button class="modal-cancel" id="modalCancel">Cancel</button>
+          <button class="modal-confirm" id="modalConfirm">I'm interested</button>
+        </div>
+      </div>
+      <div class="modal-step" id="stepForm">
+        <h3>Almost done</h3>
+        <p>Leave your name and email so we can notify you the moment GGFX launches.</p>
+        <input class="modal-field" id="fieldName" type="text" placeholder="Your name">
+        <input class="modal-field" id="fieldEmail" type="email" placeholder="Your email">
+        <div class="modal-error" id="formError">Please fill in both fields with a valid email.</div>
+        <div class="modal-actions">
+          <button class="modal-cancel" id="formCancel">Cancel</button>
+          <button class="modal-confirm" id="formSubmit">Notify me</button>
+        </div>
       </div>
     </div>
   </div>
@@ -364,12 +400,33 @@
       })
       .catch(() => {});
 
-    // --- preliminary interest button + modal ---
+    // --- preliminary interest: confirm -> name/email form -> Google Forms ---
+    // TODO: replace these 3 placeholders once the Google Form is created
+    const GFORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLScDmT0StwDGFOdTSpko2iNYebI4pE3vFze835fZ--pUJwXP9w/formResponse';
+    const GFORM_ENTRY_NAME = 'entry.295630599';
+    const GFORM_ENTRY_EMAIL = 'entry.1916133259';
+
     const interestBtn = document.getElementById('interestBtn');
     const overlay = document.getElementById('modalOverlay');
+    const stepConfirm = document.getElementById('stepConfirm');
+    const stepForm = document.getElementById('stepForm');
     const cancelBtn = document.getElementById('modalCancel');
     const confirmBtn = document.getElementById('modalConfirm');
+    const formCancelBtn = document.getElementById('formCancel');
+    const submitBtn = document.getElementById('formSubmit');
+    const nameField = document.getElementById('fieldName');
+    const emailField = document.getElementById('fieldEmail');
+    const formError = document.getElementById('formError');
     const ALREADY_KEY = 'ggfx_interest_given';
+
+    function closeModal(){
+      overlay.classList.remove('open');
+      stepForm.classList.remove('active');
+      stepConfirm.classList.add('active');
+      formError.style.display = 'none';
+      nameField.value = '';
+      emailField.value = '';
+    }
 
     if (localStorage.getItem(ALREADY_KEY)) {
       interestBtn.textContent = '✓ Thanks, noted!';
@@ -380,15 +437,39 @@
       if (interestBtn.disabled) return;
       overlay.classList.add('open');
     });
-    cancelBtn.addEventListener('click', () => overlay.classList.remove('open'));
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+    cancelBtn.addEventListener('click', closeModal);
+    formCancelBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 
     confirmBtn.addEventListener('click', () => {
+      stepConfirm.classList.remove('active');
+      stepForm.classList.add('active');
+    });
+
+    submitBtn.addEventListener('click', () => {
+      const name = nameField.value.trim();
+      const email = emailField.value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+      if (!name || !emailOk) {
+        formError.style.display = 'block';
+        return;
+      }
+      formError.style.display = 'none';
+
+      // send to Google Forms (no-cors: we can't read the response, but the submit still goes through)
+      const body = new URLSearchParams();
+      body.append(GFORM_ENTRY_NAME, name);
+      body.append(GFORM_ENTRY_EMAIL, email);
+      fetch(GFORM_ACTION, { method: 'POST', mode: 'no-cors', body }).catch(() => {});
+
+      // private interest counter
+      fetch(`${API}/${NAMESPACE}/interest/up`).catch(() => {});
+
       overlay.classList.remove('open');
       interestBtn.textContent = '✓ Thanks, noted!';
       interestBtn.disabled = true;
       try { localStorage.setItem(ALREADY_KEY, '1'); } catch(e) {}
-      fetch(`${API}/${NAMESPACE}/interest/up`).catch(() => {});
     });
   </script>
 
