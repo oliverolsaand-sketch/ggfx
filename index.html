@@ -195,6 +195,117 @@
   /* to embed the real trailer later, replace this whole .video-slot div with:
      <video class="video-slot" src="trailer.mp4" controls playsinline></video> */
 
+  /* pricing cards */
+  .pricing{
+    width:100%;
+    max-width:920px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:16px;
+  }
+  .price-card{
+    flex:1 1 240px;
+    max-width:280px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:16px;
+    padding:28px 22px;
+    text-align:left;
+    position:relative;
+  }
+  .price-card.featured{
+    background:linear-gradient(160deg, rgba(87,163,224,0.12), rgba(255,255,255,0.03));
+    border-color:rgba(87,163,224,0.5);
+    box-shadow:0 0 40px rgba(87,163,224,0.15);
+  }
+  .price-badge{
+    position:absolute;
+    top:-11px; left:22px;
+    background:var(--blue-hi);
+    color:#04060a;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:999px;
+  }
+  .price-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .price-desc{
+    font-size:13px;
+    color:var(--text-dim);
+    line-height:1.5;
+    margin-bottom:18px;
+    min-height:38px;
+  }
+  .price-amount{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:28px;
+    color:var(--text);
+  }
+  .price-amount span{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--blue-hi);
+    display:block;
+    margin-top:6px;
+  }
+  .price-teaser{
+    font-size:12.5px;
+    color:var(--blue-hi);
+    font-weight:600;
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .price-mystery{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:19px;
+    color:var(--text);
+    letter-spacing:0.01em;
+  }
+  .price-mystery span{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--blue-hi);
+    display:block;
+    margin-top:6px;
+  }
+
+  .launch-banner{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 20px;
+    border-radius:999px;
+    background:rgba(87,163,224,0.1);
+    border:1px solid rgba(87,163,224,0.35);
+    color:var(--text);
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.01em;
+    box-shadow:0 0 30px rgba(87,163,224,0.15);
+  }
+  .launch-banner b{ color:var(--blue-hi); }
+
   .interest-btn{
     font-family:'Space Grotesk', sans-serif;
     font-weight:600;
@@ -353,6 +464,27 @@
     <!-- 3. info text — replace this placeholder with the real copy later -->
     <p class="info-text placeholder">Info text coming soon — this paragraph will explain what GGFX is.</p>
 
+    <div class="launch-banner">🚀 Estimated launch: <b>September 1, 2026</b></div>
+
+    <div class="pricing">
+      <div class="price-card">
+        <div class="price-name">Minecraft GFX Pack</div>
+        <div class="price-desc">Textures, effects &amp; assets for Minecraft content — plus dozens more inside. ✨</div>
+        <div class="price-amount">€7.50<span>Estimated Price</span></div>
+      </div>
+      <div class="price-card">
+        <div class="price-name">IRL GFX Pack</div>
+        <div class="price-desc">Backgrounds, overlays &amp; effects for IRL content — plus dozens more inside. ✨</div>
+        <div class="price-amount">€7.50<span>Estimated Price</span></div>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Best Value</div>
+        <div class="price-name">Ultimate Bundle</div>
+        <div class="price-desc">Both packs combined, plus a few extras.</div>
+        <div class="price-mystery">🔒 Price revealed at launch<span>Best Value</span></div>
+      </div>
+    </div>
+
     <!-- 4. trailer — replace this div with:
          <video class="video-slot" src="trailer.mp4" controls playsinline></video> -->
     <div class="video-slot">Trailer coming soon</div>
@@ -457,11 +589,11 @@
       }
       formError.style.display = 'none';
 
-      // send to Google Forms (no-cors: we can't read the response, but the submit still goes through)
-      const body = new URLSearchParams();
-      body.append(GFORM_ENTRY_NAME, name);
-      body.append(GFORM_ENTRY_EMAIL, email);
-      fetch(GFORM_ACTION, { method: 'POST', mode: 'no-cors', body }).catch(() => {});
+      // send to Google Forms via a real <form> POST into a hidden iframe —
+      // more reliable than fetch(no-cors), which some browsers/ad-blockers silently drop
+      document.getElementById('gformName').value = name;
+      document.getElementById('gformEmail').value = email;
+      document.getElementById('gformHidden').submit();
 
       // private interest counter
       fetch(`${API}/${NAMESPACE}/interest/up`).catch(() => {});
@@ -472,6 +604,14 @@
       try { localStorage.setItem(ALREADY_KEY, '1'); } catch(e) {}
     });
   </script>
+
+  <!-- hidden real Google Form submission target -->
+  <iframe name="hidden_gform_iframe" id="hidden_gform_iframe" style="display:none;"></iframe>
+  <form id="gformHidden" action="https://docs.google.com/forms/d/e/1FAIpQLScDmT0StwDGFOdTSpko2iNYebI4pE3vFze835fZ--pUJwXP9w/formResponse"
+        method="POST" target="hidden_gform_iframe" style="display:none;">
+    <input type="text" name="entry.295630599" id="gformName">
+    <input type="text" name="entry.1916133259" id="gformEmail">
+  </form>
 
 </body>
 </html>
