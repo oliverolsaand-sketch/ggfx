@@ -14,7 +14,7 @@
     --blue-hi: #57a3e0;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  html,body{width:100%;background:#245e93a;}
+  html,body{width:100%;background:#04060a;}
   body{
     position:relative;
     font-family:'Inter', sans-serif;
@@ -270,6 +270,66 @@
     border-color:rgba(87,163,224,0.5);
     box-shadow:0 0 40px rgba(87,163,224,0.15);
   }
+
+  /* Minecraft card doubles as a launcher for the "Design it yourself" game */
+  .price-card.playable{
+    cursor:pointer;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .price-card.playable:hover{
+    transform:translateY(-3px);
+    border-color:rgba(87,163,224,0.45);
+  }
+  .price-play-hint{
+    font-size:12px;
+    font-weight:600;
+    color:var(--blue-hi);
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  /* inline design simulator, sits directly under the product cards */
+  .inline-game{
+    max-width:920px;
+    margin:36px auto 0;
+    position:relative; z-index:2;
+  }
+  .inline-game-label{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--blue-hi);
+    margin-bottom:10px;
+    padding-left:2px;
+  }
+  .inline-game-frame{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.1);
+    background:#1e1e1e;
+  }
+  .inline-game-frame iframe{
+    width:100%; height:100%;
+    border:none; display:block;
+  }
+  .inline-game-placeholder{
+    position:absolute; inset:0;
+    display:none;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding:24px;
+    font-size:14px;
+    color:var(--text-dim);
+    background:#0c0e12;
+  }
+  .inline-game-frame.empty iframe{ display:none; }
+  .inline-game-frame.empty .inline-game-placeholder{ display:flex; }
+
   .price-badge{
     position:absolute;
     top:-11px; left:22px;
@@ -356,6 +416,102 @@
     box-shadow:0 0 30px rgba(87,163,224,0.15);
   }
   .launch-banner b{ color:var(--blue-hi); }
+
+  /* ---------- products section (chalkboard cards) ---------- */
+  .products-section{
+    position:relative;
+    background:#050609;
+    padding:76px 24px 20px;
+  }
+  .products-eyebrow{
+    text-align:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:36px;
+  }
+  .products-grid{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:20px;
+    max-width:980px; margin:0 auto;
+  }
+  .chalk-card{
+    position:relative;
+    flex:1 1 260px; max-width:300px; min-height:360px;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.07);
+    background:radial-gradient(120% 120% at 30% 15%, #1c1c1e 0%, #0c0c0d 70%);
+    padding:22px;
+    display:flex; flex-direction:column;
+  }
+  .chalk-card::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity:0.08;
+    pointer-events:none;
+  }
+  .chalk-card.playable{ cursor:pointer; transition:transform .15s ease, border-color .15s ease; }
+  .chalk-card.playable:hover{ transform:translateY(-3px); border-color:rgba(87,163,224,0.4); }
+  .chalk-card.featured{ border-color:rgba(74,222,128,0.35); }
+
+  .chalk-pill{
+    align-self:flex-end;
+    background:var(--text); color:#0a0a0a;
+    border-radius:999px;
+    padding:8px 16px;
+    text-align:center;
+    font-family:'Space Grotesk', sans-serif;
+    position:relative; z-index:2;
+  }
+  .chalk-pill .amt{ font-weight:700; font-size:17px; display:block; }
+  .chalk-pill .lbl{ font-weight:600; font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:#5b5b5b; display:block; margin-top:1px; }
+  .chalk-pill.mystery{ display:flex; align-items:center; gap:6px; padding:9px 16px; }
+  .chalk-pill.mystery .amt{ font-size:12.5px; }
+
+  .chalk-badge{
+    position:absolute; top:20px; left:20px; z-index:2;
+    background:#3ddc84; color:#04250f;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700; font-size:10.5px;
+    letter-spacing:0.05em; text-transform:uppercase;
+    padding:6px 12px; border-radius:999px;
+  }
+
+  .chalk-coming{
+    position:relative; z-index:1;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:800;
+    font-size:40px;
+    line-height:0.92;
+    color:rgba(255,255,255,0.13);
+    margin-top:38px;
+  }
+  .chalk-name{
+    position:relative; z-index:2;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700; font-size:19px;
+    color:var(--text);
+    margin-top:14px;
+  }
+  .chalk-desc{
+    position:relative; z-index:2;
+    font-size:12.5px; line-height:1.5;
+    color:var(--text-dim);
+    margin-top:8px;
+  }
+  .chalk-play-hint{
+    position:relative; z-index:2;
+    font-size:11.5px; font-weight:600;
+    color:var(--blue-hi);
+    margin-top:auto;
+    padding-top:14px;
+    display:flex; align-items:center; gap:6px;
+  }
+
 
   .interest-btn{
     font-family:'Space Grotesk', sans-serif;
@@ -529,7 +685,7 @@
     </filter>
   </svg>
 
-  <div class="hero">
+  <div class="hero" id="top">
     <div class="photo"></div>
     <div class="ambient">
       <span class="a1"></span>
@@ -548,30 +704,49 @@
     </div>
   </div>
 
-  <div class="below">
+  <div class="products-section" id="products">
+    <div class="products-eyebrow">Digital Products</div>
+    <div class="products-grid">
+      <div class="chalk-card playable" id="mcCard" data-game="design.html" data-game-label="Minecraft GFX Pack">
+        <div class="chalk-pill"><span class="amt">€7.50</span><span class="lbl">Estimated Price</span></div>
+        <div class="chalk-coming">Coming<br>Soon</div>
+        <div class="chalk-name">Minecraft GFX Pack</div>
+        <div class="chalk-desc">Textures, effects &amp; assets for Minecraft content — plus dozens more inside. ✨</div>
+        <div class="chalk-play-hint">🎮 Click to try it yourself</div>
+      </div>
+      <div class="chalk-card playable" id="irlCard" data-game="" data-game-label="IRL GFX Pack">
+        <div class="chalk-pill"><span class="amt">€7.50</span><span class="lbl">Estimated Price</span></div>
+        <div class="chalk-coming">Coming<br>Soon</div>
+        <div class="chalk-name">IRL GFX Pack</div>
+        <div class="chalk-desc">Backgrounds, overlays &amp; effects for IRL content — plus dozens more inside. ✨</div>
+        <div class="chalk-play-hint">🎮 Click to try it yourself</div>
+      </div>
+      <div class="chalk-card featured">
+        <div class="chalk-badge">Best Value</div>
+        <div class="chalk-pill mystery">🔒<span class="amt">Price revealed<br>at launch</span></div>
+        <div class="chalk-coming">Coming<br>Soon</div>
+        <div class="chalk-name">Ultimate Bundle</div>
+        <div class="chalk-desc">Both packs combined, plus a few extras.</div>
+      </div>
+    </div>
+
+    <!-- inline design simulator — swaps content depending on which card above was clicked.
+         Each playable card needs data-game="somefile.html" pointing to its own game build.
+         Cards with data-game="" (like IRL, for now) show the "coming soon" placeholder instead. -->
+    <div class="inline-game">
+      <div class="inline-game-label" id="inlineGameLabel">🎮 Minecraft GFX Pack — Design Simulator</div>
+      <div class="inline-game-frame">
+        <iframe id="inlineGameFrame" src="design.html" title="GGFX Design Simulator"></iframe>
+        <div class="inline-game-placeholder" id="inlineGamePlaceholder">Design simulator for this pack is coming soon 👀</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="below" id="benefits">
     <!-- 3. info text — replace this placeholder with the real copy later -->
     <p class="info-text placeholder">Info text coming soon — this paragraph will explain what GGFX is.</p>
 
     <div class="launch-banner">🚀 Estimated launch: <b>September 1, 2026</b></div>
-
-    <div class="pricing">
-      <div class="price-card">
-        <div class="price-name">Minecraft GFX Pack</div>
-        <div class="price-desc">Textures, effects &amp; assets for Minecraft content — plus dozens more inside. ✨</div>
-        <div class="price-amount">€7.50<span>Estimated Price</span></div>
-      </div>
-      <div class="price-card">
-        <div class="price-name">IRL GFX Pack</div>
-        <div class="price-desc">Backgrounds, overlays &amp; effects for IRL content — plus dozens more inside. ✨</div>
-        <div class="price-amount">€7.50<span>Estimated Price</span></div>
-      </div>
-      <div class="price-card featured">
-        <div class="price-badge">Best Value</div>
-        <div class="price-name">Ultimate Bundle</div>
-        <div class="price-desc">Both packs combined, plus a few extras.</div>
-        <div class="price-mystery">🔒 Price revealed at launch<span>Best Value</span></div>
-      </div>
-    </div>
 
     <!-- 4. trailer — replace this div with:
          <video class="video-slot" src="trailer.mp4" controls playsinline></video> -->
@@ -605,6 +780,45 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // "Design it yourself" game modal — loads design.html into the iframe
+    // only on first open (lazy load), so it doesn't slow down the initial page load
+    // wrapped in DOMContentLoaded so it runs only once every element below exists in the DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      const playableCards = document.querySelectorAll('.chalk-card.playable');
+      const inlineFrame = document.getElementById('inlineGameFrame');
+      const inlineFrameBox = inlineFrame.parentElement; // .inline-game-frame
+      const inlineLabel = document.getElementById('inlineGameLabel');
+      const loadedSrcs = new Set();
+
+      function showGameFor(card){
+        const gamePath = card.dataset.game;
+        const label = card.dataset.gameLabel || card.querySelector('.chalk-name')?.textContent || '';
+
+        if (!gamePath){
+          // this pack doesn't have a design simulator yet -> show placeholder
+          inlineFrameBox.classList.add('empty');
+          inlineFrame.src = '';
+          inlineLabel.textContent = `🎮 ${label} — Design Simulator`;
+          return;
+        }
+
+        inlineFrameBox.classList.remove('empty');
+        if (inlineFrame.getAttribute('src') !== gamePath){
+          inlineFrame.src = gamePath;
+        }
+        inlineLabel.textContent = `🎮 ${label} — Design Simulator`;
+
+        // scroll the game area into view so the switch is obvious
+        document.querySelector('.inline-game').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      playableCards.forEach(card => {
+        card.addEventListener('click', () => showGameFor(card));
+      });
+    });
+  </script>
 
   <script>
     const NAMESPACE = 'ggfx-store';
